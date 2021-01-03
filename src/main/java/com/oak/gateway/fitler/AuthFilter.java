@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.io.buffer.DataBufferFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -21,10 +23,13 @@ import java.util.Objects;
  */
 @Component
 @Slf4j
-public class TestAuthFilter implements GlobalFilter {
+public class AuthFilter implements GlobalFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        final ServerHttpRequest request = exchange.getRequest();
+        final HttpHeaders headers = request.getHeaders();
+        headers.get("at");
         final String token = exchange.getRequest().getHeaders().getFirst("token");
         if (Objects.equals(token, "chippy")) {
             return chain.filter(exchange);

@@ -1,7 +1,8 @@
-package com.oak.gateway.limit.factory;
+package com.oak.gateway.fitler.factory;
 
 import cn.hutool.json.JSONUtil;
 import com.oak.gateway.common.response.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
@@ -19,11 +20,14 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 重新写一个过滤器（基本和官方一致），只是将官方的返回报文改了
+ * 重新写一个过滤器
+ * （基本和官方{@link org.springframework.cloud.gateway.filter.factory.RequestRateLimiterGatewayFilterFactory}一致），
+ * 只是将官方的返回报文改了
  *
  * @author: chippy
  * @datetime 2021/1/3 20:50
  */
+@Slf4j
 public class RateLimiterGatewayFilterFactory
     extends AbstractGatewayFilterFactory<RateLimiterGatewayFilterFactory.Config> {
 
@@ -65,8 +69,9 @@ public class RateLimiterGatewayFilterFactory
                     return chain.filter(exchange);
                 }
                 final ServerHttpResponse rs = exchange.getResponse();
-                final byte[] datas = JSONUtil.toJsonStr(Result.fail(201, "访问过快")).getBytes(StandardCharsets.UTF_8);
-                DataBuffer buffer = rs.bufferFactory().wrap(datas);
+                DataBuffer buffer = rs.bufferFactory().wrap(
+                    JSONUtil.toJsonStr(Result.fail(HttpStatus.TOO_MANY_REQUESTS.value(), "访问过快"))
+                        .getBytes(StandardCharsets.UTF_8));
                 rs.setStatusCode(HttpStatus.UNAUTHORIZED);
                 rs.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
                 return rs.writeWith(Mono.just(buffer));
