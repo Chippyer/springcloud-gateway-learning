@@ -1,0 +1,4 @@
+1. 编写{@link com.oak.gateway.limit.factory.RateLimiterGatewayFilterFactory}基本和官方提供的类型一致，唯一不同的是可以在这里实现
+自定义的信息返回;
+2. 编写自己的Resolver实现KeyResolver即可，规则则是重写方法resolver()函数中的逻辑key值;
+3. 配置文件中的filters中的name写入规则是xxxGatewayFilterFactory;配置只写入xxx即可;

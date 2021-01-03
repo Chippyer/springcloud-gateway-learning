@@ -1,0 +1,51 @@
+logging:
+  level:
+    com.oak.gateway: debug
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: lb://order-service
+          order: 0
+          predicates:
+            - Path=/**
+          filters:
+            - name: Hystrix # Hystrix Filter的名称、设置成默认的
+              args: # Hystrix 配置参数
+                name: orderFallbackHysctrixCommand # HystrixCommand 的名字, 关联设置熔断超时时间中的名称
+                fallbackUri: forward:/fallback # fallback对用的uri
+            - name: RateLimiter
+              args:
+                key-resolver: '#{@uriKeyResolver}' # 按照地址进行限流, 用于限流的键的解析器Bean对象的名字。它使用 SpEL 表达式根据#{@beanName}从 Spring 容器中获取 Bean 对象
+                redis-rate-limiter.replenishRate: 1 # 令牌桶每秒填充平均速率
+                redis-rate-limiter.burstCapacity: 1 # 令牌桶总容量
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:9000/eureka/
+  instance:
+    #主机名称
+    hostname: ${spring.cloud.client.ip-address}
+    lease-expiration-duration-in-seconds: 90
+    lease-renewal-interval-in-seconds: 30
+    preferIpAddress: true
+    instance_id: ${spring.cloud.client.ip-address}:${server.port}
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+    orderFallbackHysctrixCommand: # 设置某个服务的熔断超时时间限制
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 3000
