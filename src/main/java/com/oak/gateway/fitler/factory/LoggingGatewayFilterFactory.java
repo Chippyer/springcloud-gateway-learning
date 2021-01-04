@@ -27,11 +27,9 @@ import java.util.Objects;
 public class LoggingGatewayFilterFactory extends AbstractGatewayFilterFactory<LoggingGatewayFilterFactory.Config> {
 
     public static final String IGNORE_URLS = "ignoreUrls";
-    private String ignoreUrls;
 
-    public LoggingGatewayFilterFactory(String ignoreUrls) {
+    public LoggingGatewayFilterFactory() {
         super(Config.class);
-        this.ignoreUrls = ignoreUrls;
     }
 
     @Override

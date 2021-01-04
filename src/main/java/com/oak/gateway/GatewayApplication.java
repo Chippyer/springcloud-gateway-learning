@@ -62,7 +62,7 @@ public class GatewayApplication {
 
     @Bean
     public LoggingGatewayFilterFactory loggingGatewayFilterFactory() {
-        return new LoggingGatewayFilterFactory(null);
+        return new LoggingGatewayFilterFactory();
     }
 
 }
