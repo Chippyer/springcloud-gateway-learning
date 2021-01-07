@@ -9,9 +9,7 @@ import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
 import org.springframework.cloud.gateway.filter.ratelimit.RateLimiter;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import reactor.core.publisher.Mono;
 
@@ -68,13 +66,10 @@ public class RateLimiterGatewayFilterFactory
                 if (response.isAllowed()) {
                     return chain.filter(exchange);
                 }
-                final ServerHttpResponse rs = exchange.getResponse();
-                DataBuffer buffer = rs.bufferFactory().wrap(
+                ServerHttpResponse rs = exchange.getResponse();
+                return rs.writeWith(Mono.just(rs.bufferFactory().wrap(
                     JSONUtil.toJsonStr(Result.fail(HttpStatus.TOO_MANY_REQUESTS.value(), "访问过快"))
-                        .getBytes(StandardCharsets.UTF_8));
-                rs.setStatusCode(HttpStatus.UNAUTHORIZED);
-                rs.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE);
-                return rs.writeWith(Mono.just(buffer));
+                        .getBytes(StandardCharsets.UTF_8))));
             }));
         };
     }

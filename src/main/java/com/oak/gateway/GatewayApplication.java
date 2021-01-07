@@ -3,8 +3,8 @@ package com.oak.gateway;
 import com.oak.gateway.fitler.factory.LoggingGatewayFilterFactory;
 import com.oak.gateway.fitler.factory.RateLimiterGatewayFilterFactory;
 import com.oak.gateway.limit.resolver.HostAddrKeyResolver;
-import com.oak.gateway.limit.resolver.UriKeyResolver;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.filter.ratelimit.KeyResolver;
@@ -36,10 +36,10 @@ public class GatewayApplication {
         return new HostAddrKeyResolver();
     }
 
-    @Bean
-    public UriKeyResolver uriKeyResolver() {
-        return new UriKeyResolver();
-    }
+    //@Bean
+    //public UriKeyResolver uriKeyResolver() {
+    //    return new UriKeyResolver();
+    //}
 
     /*
         解决全局设置限流拦截器问题
@@ -56,7 +56,7 @@ public class GatewayApplication {
 
     @Bean
     public RateLimiterGatewayFilterFactory rateLimiterGatewayFilterFactory(RedisRateLimiter redisRateLimiter,
-        KeyResolver hostAddrKeyResolver) {
+        @Qualifier("hostAddrKeyResolver") KeyResolver hostAddrKeyResolver) {
         return new RateLimiterGatewayFilterFactory(redisRateLimiter, hostAddrKeyResolver);
     }
 
